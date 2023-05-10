@@ -1,14 +1,14 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import os
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
-import matplotlib.pyplot as plt
 
-HOUSE_PATH = os.path.join("datasets", "housing")
+DATA_PATH = os.path.join("datasets", "housing")
 
 
-def load_data(house_path=HOUSE_PATH):
-    csv_path = os.path.join(HOUSE_PATH, "housing.csv")
+def load_data(data_path=DATA_PATH):
+    csv_path = os.path.join(data_path, "housing.csv")
     return pd.read_csv(csv_path)
 
 
@@ -21,6 +21,10 @@ for train_index, test_index in split.split(housing, housing["income_cut"]):
 for set_ in [strat_train_set, strat_test_set]:
     set_.drop("income_cut", axis=1, inplace=True)
 housing = strat_train_set.copy()
-housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.4, s=housing["population"]/100, label="population", figsize=(10, 7), c=housing["median_house_value"], cmap=plt.get_cmap("jet"), colorbar=True)
+housing.drop("ocean_proximity", axis=1, inplace=True)
+# corr_matrix = housing.corr()
+# print(corr_matrix["median_house_value"].sort_values(ascending=False))
+# attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
+# pd.plotting.scatter_matrix(housing[attributes], figsize=(12, 8))
+housing.plot(kind="scatter", x="median_income", y="median_house_value", alpha=0.4)
 plt.show()
-plt.legend()
