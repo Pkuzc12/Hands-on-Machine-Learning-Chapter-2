@@ -23,5 +23,6 @@ for train_index, test_index in split.split(housing, housing["income_cut"]):
 for set_ in [strat_train_set, strat_test_set]:
     set_.drop("income_cut", axis=1, inplace=True)
 housing = strat_train_set.copy()
-housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.1)
+housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.4, s=housing["population"]/100, label="population", figsize=(10, 7), c="median_house_value", cmap=plt.get_cmap("jet"), colorbar=True)
 plt.show()
+plt.legend()
