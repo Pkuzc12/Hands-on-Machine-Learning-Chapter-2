@@ -1,8 +1,8 @@
 import os
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.impute import SimpleImputer
 
 DATA_PATH = os.path.join("datasets", "housing")
 
@@ -20,12 +20,14 @@ for train_index, test_index in split.split(housing, housing["income_cut"]):
     strat_test_set = housing.loc[test_index]
 for set_ in [strat_train_set, strat_test_set]:
     set_.drop("income_cut", axis=1, inplace=True)
-housing = strat_train_set.copy()
-# housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.4, s=housing["population"]/100, label="population", figsize=[10, 7], c=housing["median_house_value"], cmap=plt.get_cmap("jet"), colorbar="True")
-housing.drop("ocean_proximity", axis=1, inplace=True)
-# corr_matrix = housing.corr()
-# print(corr_matrix["median_house_value"].sort_values(ascending=False))
-# attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
-# pd.plotting.scatter_matrix(housing[attributes], figsize=(12, 9))
-housing.plot(kind='scatter', x="median_income", y="median_house_value", alpha=0.4)
-plt.show()
+housing = strat_train_set.drop("median_house_value", axis=1)
+housing_labels = strat_train_set["median_house_value"].copy()
+# housing.dropna(subset=["total_bedrooms"])
+# housing.drop("total_bedrooms", axis=1, inplace=True)
+# median = housing["total_bedrooms"].median()
+# housing["total_bedrooms"].fillna(median, inplace=True)
+imputer = SimpleImputer(strategy='median')
+housing_num = housing.drop("ocean_proximity", axis=1, inplace=False)
+imputer.fit(housing_num)
+X = imputer.transform(housing_num)
+housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing_num.index)
