@@ -62,15 +62,28 @@ housing_num = housing.drop("ocean_proximity", axis=1, inplace=False)
 attri_num = list(housing_num)
 attri_cat = ["ocean_proximity"]
 full_pipeline = ColumnTransformer([
-    ["num", pipeline_num, attri_num],
-    ["cat", OneHotEncoder(), attri_cat],
+    ("num", pipeline_num, attri_num),
+    ("cat", OneHotEncoder(), attri_cat),
 ])
 
 housing_prepared = full_pipeline.fit_transform(housing)
+housing_labels = housing["median_house_value"].copy()
+housing_temp = housing.drop("ocean_proximity", axis=1, inplace=False)
+housing_prepared = pd.DataFrame(housing_prepared, columns=(housing_temp.columns.tolist())+["pop_per_house", "room_per_house", "bedrooms_per_room", "1", "2", "3", "4", "5"], index=housing.index)
+housing_prepared.drop("median_house_value", axis=1, inplace=True)
 
-# lin_reg = LinearRegression()
-# lin_reg.fit(housing_prepared, housing_labels)
-# some_data = housing_prepared.iloc[:5]
-# some_labels = housing_labels.iloc[:5]
-# print(lin_reg.predict(some_data))
-# print(some_labels)
+lin_reg = LinearRegression()
+lin_reg.fit(housing_prepared, housing_labels)
+
+housing_predictions = lin_reg.predict(housing_prepared)
+mse = mean_squared_error(housing_predictions, housing_labels)
+rmse = np.sqrt(mse)
+print(rmse)
+
+tree_reg = DecisionTreeRegressor()
+tree_reg.fit(housing_prepared, housing_labels)
+
+housing_predictions = tree_reg.predict(housing_prepared)
+mse = mean_squared_error(housing_predictions, housing_labels)
+rmse = np.sqrt(mse)
+print(rmse)
